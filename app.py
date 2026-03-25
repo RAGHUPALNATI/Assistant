@@ -1,8 +1,6 @@
 import cv2
 import streamlit as st
-import time
 from monitor import FaceMonitor
-from notifier import send_security_alert
 from locker import lock_pc
 
 def main():
@@ -30,7 +28,7 @@ def main():
             st.sidebar.error("❌ Failed to process owner image.")
 
     st.sidebar.subheader("👥 Step 2: Upload Friends' Photos")
-    friend_files = st.sidebar.file_uploader("Upload photos of friends (System will detect them and send alert)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key="friends")
+    friend_files = st.sidebar.file_uploader("Upload photos of friends (System will lock PC if detected)", type=["jpg", "png", "jpeg"], accept_multiple_files=True, key="friends")
     if friend_files:
         for file in friend_files:
             if st.session_state.monitor.add_friend_face(file):
@@ -59,9 +57,6 @@ def main():
         frame_placeholder = st.empty()
         status_placeholder = st.empty()
         
-        # Performance/Alert cooldown
-        last_alert_time = 0
-        
         while st.session_state.security_active:
             ret, frame = cap.read()
             if not ret:
@@ -73,17 +68,12 @@ def main():
             
             # Update visual status
             if threat:
-                status_placeholder.error(f"⚡ ALERT: {info}")
+                status_placeholder.error(f"🔒 LOCKING PC: {info}")
                 
                 # Immediate Action: LOCK THE PC
                 lock_pc() # Performs OS-level lock (Win + L)
-                
-                # Optional: Send Secret email in addition
-                current_time = time.time()
-                if current_time - last_alert_time > 60: # 1 minute cooldown
-                    send_security_alert('raghuvarmapalnati@gmail.com', info)
-                    last_alert_time = current_time
-                    st.toast("📧 Secret alert sent.")
+                st.toast("🔒 PC Locked!")
+                break  # Exit the monitoring loop after locking
             else:
                 status_placeholder.success("✅ System Clear (Owner Detected or Empty)")
             
