@@ -1,0 +1,6 @@
+opencv-python-headless
+face_recognition
+streamlit
+yagmail
+numpy
+Pillow
