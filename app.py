@@ -3,6 +3,7 @@ import streamlit as st
 import time
 from monitor import FaceMonitor
 from notifier import send_security_alert
+from locker import lock_pc
 
 def main():
     st.set_page_config(page_title="Security Monitor Pro", page_icon="🔒")
@@ -74,7 +75,10 @@ def main():
             if threat:
                 status_placeholder.error(f"⚡ ALERT: {info}")
                 
-                # Check for cooldown (don't spam email)
+                # Immediate Action: LOCK THE PC
+                lock_pc() # Performs OS-level lock (Win + L)
+                
+                # Optional: Send Secret email in addition
                 current_time = time.time()
                 if current_time - last_alert_time > 60: # 1 minute cooldown
                     send_security_alert('raghuvarmapalnati@gmail.com', info)
