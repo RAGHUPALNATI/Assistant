@@ -1,6 +1,4 @@
-opencv-python-headless
+opencv-python
 face_recognition
-streamlit
-yagmail
 numpy
 Pillow
